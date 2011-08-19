@@ -132,7 +132,6 @@ Phantom::Phantom(QObject *parent)
                 webDriverServerPort = port;
             }
             continue;
-            QString::
         }
         if (arg.startsWith("--proxy=")) {
             proxyHost = arg.mid(8).trimmed();
