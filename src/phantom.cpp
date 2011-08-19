@@ -41,6 +41,7 @@
 #include "webpage.h"
 
 #include "registry.h"
+#include "webdriver/server.h"
 
 // public:
 Phantom::Phantom(QObject *parent)
@@ -49,6 +50,8 @@ Phantom::Phantom(QObject *parent)
     , m_returnValue(0)
     , m_converter(0)
     , m_netAccessMan(0)
+    , m_webDriverServer(false)
+    , m_webDriverServerPort(4444)
 {
     m_page = new WebPage(this);
     m_pages.append(m_page);
@@ -61,10 +64,6 @@ Phantom::Phantom(QObject *parent)
     bool diskCacheEnabled = false;
     bool ignoreSslErrors = false;
     bool localAccessRemote = false;
-    // Decides whether to start the webdriver server
-    bool webDriverServer = false;
-    //port where webdriver server will listen
-    int webDriverServerPort = 4444;
 
     // second argument: script name
     QStringList args = QApplication::arguments();
@@ -122,14 +121,14 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg == "--webdriver") {
-            webDriverServer = true;
+            m_webDriverServer = true;
             continue;
         }
         if (arg.startsWith("--wd-port=")) {
             bool ok = true;
             int port = arg.mid(10).trimmed().toInt(&ok);
             if (ok) {
-                webDriverServerPort = port;
+                m_webDriverServerPort = port;
             }
             continue;
         }
@@ -167,7 +166,7 @@ Phantom::Phantom(QObject *parent)
         }
     }
 
-    if (m_scriptFile.isEmpty()) {
+    if (!m_webDriverServer && m_scriptFile.isEmpty()) {
         Utils::showUsage();
         return;
     }
@@ -242,10 +241,17 @@ bool Phantom::execute()
     if (m_terminated)
         return false;
 
-    if (m_scriptFile.isEmpty())
+    if (!m_webDriverServer && m_scriptFile.isEmpty())
         return false;
 
-    if (!Utils::injectJsInFrame(m_scriptFile, m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
+    if (m_webDriverServer){
+        webdriver::Server webDriverServer(m_webDriverServerPort);
+        if (!webDriverServer.Start()) {
+            Registry::terminal().cerr(QString("Could not start WebDriver server"));
+            m_returnValue = -1;
+            return false;
+        }
+    } else if (!Utils::injectJsInFrame(m_scriptFile, m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
         m_returnValue = -1;
         return false;
     }

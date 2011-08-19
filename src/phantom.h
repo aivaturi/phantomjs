@@ -91,6 +91,8 @@ private:
     QVariantMap m_defaultPageSettings;
     FileSystem m_filesystem;
     QList<WebPage*> m_pages;
+    bool m_webDriverServer;
+    int m_webDriverServerPort;
 };
 
 #endif // PHANTOM_H
