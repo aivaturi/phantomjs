@@ -61,6 +61,10 @@ Phantom::Phantom(QObject *parent)
     bool diskCacheEnabled = false;
     bool ignoreSslErrors = false;
     bool localAccessRemote = false;
+    // Decides whether to start the webdriver server
+    bool webDriverServer = false;
+    //port where webdriver server will listen
+    int webDriverServerPort = 4444;
 
     // second argument: script name
     QStringList args = QApplication::arguments();
@@ -116,6 +120,19 @@ Phantom::Phantom(QObject *parent)
         if (arg == "--local-access-remote=yes") {
             localAccessRemote = true;
             continue;
+        }
+        if (arg == "--webdriver") {
+            webDriverServer = true;
+            continue;
+        }
+        if (arg.startsWith("--wd-port=")) {
+            bool ok = true;
+            int port = arg.mid(10).trimmed().toInt(&ok);
+            if (ok) {
+                webDriverServerPort = port;
+            }
+            continue;
+            QString::
         }
         if (arg.startsWith("--proxy=")) {
             proxyHost = arg.mid(8).trimmed();

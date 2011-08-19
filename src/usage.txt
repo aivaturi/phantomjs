@@ -11,3 +11,5 @@ Options:
     --local-access-remote=[yes|no]     Local content can access remote URL (default is 'no').
     --output-encoding                  Sets (if available) the encoding used for terminal output (default is 'utf8').
     --script-encoding                  Sets (if available) the encoding used for the starting script (default is 'utf8').
+    --webdriver							Starts WebDriver server
+    --wd-port=port_number              WebDriver port, defaults to 4444
