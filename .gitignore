@@ -17,3 +17,7 @@ debian/*.substvars
 debian/*/
 python/build/
 python/*.egg-info/
+*.Debug
+*.Release
+*.dll
+*.lib
