@@ -49,9 +49,8 @@ void* Server::OnHttpEvent(enum mg_event event_raised,
 }
 
 bool Server::Start() {
-    char buffer[10];
-    itoa(this->port(), buffer, 10);
-    const char* options[] = { "listening_ports", buffer,
+    QString buffer = QString::number(this->port());
+    const char* options[] = { "listening_ports", buffer.toStdString().c_str(),
                               "access_control_list", "-0.0.0.0/0,+127.0.0.1",
                               // "enable_keep_alive", "yes",
                               NULL };
