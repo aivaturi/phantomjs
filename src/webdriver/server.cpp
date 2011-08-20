@@ -75,7 +75,7 @@ void Server::Stop()
 int Server::ProcessRequest(struct mg_connection* conn,
                            const struct mg_request_info* request_info)
 {
-    int http_response_code = NULL;
+    int http_response_code = 0;
     QString http_verb = request_info->request_method;
     QString request_body = "{}";
     //if (http_verb == "POST") {
