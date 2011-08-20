@@ -65,3 +65,5 @@ INCLUDEPATH += $$PWD/third_party/mongoose \
 DEPENDPATH += $$PWD/third_party/mongoose \
               $$PWD/third_party/jsoncpp \
               $$PWD/third_party/jsoncpp/json
+
+win32: LIBS += -lws2_32
