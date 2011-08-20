@@ -20,7 +20,7 @@
 #include <QtCore/QString>
 #include <QtCore/QMap>
 #include <QtCore/QVector>
-#include <sstream>
+#include <QtCore/QTextStream>
 //#include "command_types.h"
 //#include <regex>
 //#include "session.h"

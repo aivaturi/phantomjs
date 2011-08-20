@@ -282,72 +282,71 @@ void Server::SendHttpOk(struct mg_connection* connection,
                         const QString& body,
                         const QString& content_type)
 {
-    std::ostringstream out;
-    out << "HTTP/1.1 200 OK\r\n"
-        << "Content-Length: " << body.length() << "\r\n"
-        << "Content-Type: " << content_type.toStdString() << "; charset=UTF-8\r\n"
-        << "Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept\r\n"
-        << "Accept-Ranges: bytes\r\n"
-        << "Connection: close\r\n\r\n";
+    QString out;
+    QTextStream(&out) << "HTTP/1.1 200 OK\r\n"
+                         "Content-Length: " << body.length() << "\r\n"
+                         "Content-Type: " << content_type << "; charset=UTF-8\r\n"
+                         "Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept\r\n"
+                         "Accept-Ranges: bytes\r\n"
+                         "Connection: close\r\n\r\n";
     if (qstrcmp(request_info->request_method, "HEAD") != 0) {
-        out << body.toStdString() << "\r\n";
+        QTextStream(&out) << body << "\r\n";
     }
-
-    mg_write(connection, out.str().c_str(), out.str().size());
+    mg_write(connection, out.toStdString().c_str(), out.length());
 }
 
 void Server::SendHttpBadRequest(struct mg_connection* const connection,
                                 const struct mg_request_info* request_info,
                                 const QString& body)
 {
-    std::ostringstream out;
-    out << "HTTP/1.1 400 Bad Request\r\n"
-        << "Content-Length: " << body.length() << "\r\n"
-        << "Content-Type: application/json; charset=UTF-8\r\n"
-        << "Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept\r\n"
-        << "Accept-Ranges: bytes\r\n"
-        << "Connection: close\r\n\r\n";
+    QString out;
+    QTextStream(&out) << "HTTP/1.1 400 Bad Request\r\n"
+                         "Content-Length: " << body.length() << "\r\n"
+                         "Content-Type: application/json; charset=UTF-8\r\n"
+                         "Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept\r\n"
+                         "Accept-Ranges: bytes\r\n"
+                         "Connection: close\r\n\r\n";
     if (qstrcmp(request_info->request_method, "HEAD") != 0) {
-        out << body.toStdString() << "\r\n";
+        QTextStream(&out) << body << "\r\n";
     }
 
-    mg_printf(connection, "%s", out.str().c_str());
+    mg_printf(connection, "%s", out.toStdString().c_str());
 }
 
 void Server::SendHttpInternalError(struct mg_connection* connection,
                                    const struct mg_request_info* request_info,
                                    const QString& body)
 {
-    std::ostringstream out;
-    out << "HTTP/1.1 500 Internal Server Error\r\n"
-        << "Content-Length: " << body.length() << "\r\n"
-        << "Content-Type: application/json; charset=UTF-8\r\n"
-        << "Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept\r\n"
-        << "Accept-Ranges: bytes\r\n"
-        << "Connection: close\r\n\r\n";
+    QString out;
+    QTextStream(&out) << "HTTP/1.1 500 Internal Server Error\r\n"
+                         "Content-Length: " << body.length() << "\r\n"
+                         "Content-Type: application/json; charset=UTF-8\r\n"
+                         "Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept\r\n"
+                         "Accept-Ranges: bytes\r\n"
+                         "Connection: close\r\n\r\n";
     if (qstrcmp(request_info->request_method, "HEAD") != 0) {
-        out << body.toStdString() << "\r\n";
+        QTextStream(&out) << body << "\r\n";
     }
 
-    mg_write(connection, out.str().c_str(), out.str().size());
+    mg_write(connection, out.toStdString().c_str(), out.length());
 }
 
 void Server::SendHttpNotFound(struct mg_connection* const connection,
                               const struct mg_request_info* request_info,
                               const QString& body)
 {
-    std::ostringstream out;
-    out << "HTTP/1.1 404 Not Found\r\n"
-        << "Content-Length: " << body.length() << "\r\n"
-        << "Content-Type: application/json; charset=UTF-8\r\n"
-        << "Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept\r\n"
-        << "Accept-Ranges: bytes\r\n"
-        << "Connection: close\r\n\r\n";
+    QString out;
+    QTextStream(&out) << "HTTP/1.1 404 Not Found\r\n"
+                         "Content-Length: " << body.length() << "\r\n"
+                         "Content-Type: application/json; charset=UTF-8\r\n"
+                         "Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept\r\n"
+                         "Accept-Ranges: bytes\r\n"
+                         "Connection: close\r\n\r\n";
     if (qstrcmp(request_info->request_method, "HEAD") != 0) {
-        out << body.toStdString() << "\r\n";
+        QTextStream(&out) << body << "\r\n";
     }
 
-    mg_printf(connection, "%s", out.str().c_str());
+    mg_printf(connection, "%s", out.toStdString().c_str());
 }
 
 void Server::SendHttpMethodNotAllowed(
@@ -355,39 +354,39 @@ void Server::SendHttpMethodNotAllowed(
         const struct mg_request_info* request_info,
         const QString& allowed_methods)
 {
-    std::ostringstream out;
-    out << "HTTP/1.1 405 Method Not Allowed\r\n"
-        << "Content-Type: text/html\r\n"
-        << "Content-Length: 0\r\n"
-        << "Allow: " << allowed_methods.toStdString() << "\r\n\r\n";
+    QString out;
+    QTextStream(&out) << "HTTP/1.1 405 Method Not Allowed\r\n"
+                         "Content-Type: text/html\r\n"
+                         "Content-Length: 0\r\n"
+                         "Allow: " << allowed_methods << "\r\n\r\n";
 
-    mg_write(connection, out.str().c_str(), out.str().size());
+    mg_write(connection, out.toStdString().c_str(), out.length());
 }
 
 void Server::SendHttpNotImplemented(struct mg_connection* connection,
                                     const struct mg_request_info* request_info,
                                     const QString& body)
 {
-    std::ostringstream out;
-    out << "HTTP/1.1 501 Not Implemented\r\n"
-        << "Content-Type: text/html\r\n"
-        << "Content-Length: 0\r\n"
-        << "Allow: " << body.toStdString() << "\r\n\r\n";
+    QString out;
+    QTextStream(&out) << "HTTP/1.1 501 Not Implemented\r\n"
+                         "Content-Type: text/html\r\n"
+                         "Content-Length: 0\r\n"
+                         "Allow: " << body << "\r\n\r\n";
 
-    mg_write(connection, out.str().c_str(), out.str().size());
+    mg_write(connection, out.toStdString().c_str(), out.length());
 }
 
 void Server::SendHttpSeeOther(struct mg_connection* connection,
                               const struct mg_request_info* request_info,
                               const QString& location)
 {
-    std::ostringstream out;
-    out << "HTTP/1.1 303 See Other\r\n"
-        << "Location: " << location.toStdString() << "\r\n"
-        << "Content-Type: text/html\r\n"
-        << "Content-Length: 0\r\n\r\n";
+    QString out;
+    QTextStream(&out) << "HTTP/1.1 303 See Other\r\n"
+                         "Location: " << location << "\r\n"
+                         "Content-Type: text/html\r\n"
+                         "Content-Length: 0\r\n\r\n";
 
-    mg_write(connection, out.str().c_str(), out.str().size());
+    mg_write(connection, out.toStdString().c_str(), out.length());
 }
 
 /*
