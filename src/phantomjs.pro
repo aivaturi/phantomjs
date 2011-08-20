@@ -23,7 +23,10 @@ HEADERS += csconverter.h \
     registry.h \
     encoding.h \
     webdriver/server.h \
-    webdriver/response.h
+    webdriver/response.h \
+    third_party/jsoncpp/json/json.h \
+    third_party/jsoncpp/json/json-forwards.h \
+    third_party/mongoose/mongoose.h
 SOURCES += phantom.cpp \
     webpage.cpp \
     main.cpp \
@@ -37,7 +40,9 @@ SOURCES += phantom.cpp \
     registry.cpp \
     encoding.cpp \
     webdriver/server.cpp \
-    webdriver/response.cpp
+    webdriver/response.cpp \
+    third_party/jsoncpp/jsoncpp.cpp \
+    third_party/mongoose/mongoose.c
 
 OTHER_FILES = bootstrap.js
 
@@ -52,27 +57,11 @@ mac {
 #    CONFIG += x86 ppc
 }
 
-unix:!symbian|win32: LIBS += -L$$PWD/third_party/mongoose/ -lmongoose -L$$PWD/third_party/json/ -ljson_mingw_libmt
+#unix:!symbian|win32: LIBS += -L$$PWD/third_party/mongoose -lmongoose
 
 INCLUDEPATH += $$PWD/third_party/mongoose \
-               $$PWD/third_party/json
+               $$PWD/third_party/jsoncpp \
+               $$PWD/third_party/jsoncpp/json \
 DEPENDPATH += $$PWD/third_party/mongoose \
-              $$PWD/third_party/json
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+              $$PWD/third_party/jsoncpp \
+              $$PWD/third_party/jsoncpp/json
