@@ -19,18 +19,17 @@
 
 namespace webdriver {
 
-Server::Server(const int port) {
-    // It's possible to set the log level at compile time using this:
-    //LOG::Level("FATAL");
-    //LOG(INFO) << "Starting WebDriver server on port: " << port;
+Server::Server(const int port)
+{
     this->port_ = port;
     //this->PopulateCommandRepository();
 }
 
-Server::~Server(void) {
+Server::~Server(void)
+{
    /* SessionMap::iterator it = this->sessions_.begin();
     for (; it != this->sessions_.end(); ++it) {
-        std::string session_id = it->first;
+        QString session_id = it->first;
         this->ShutDownSession(session_id);
     }
     */
@@ -38,7 +37,8 @@ Server::~Server(void) {
 
 void* Server::OnHttpEvent(enum mg_event event_raised,
                           struct mg_connection* conn,
-                          const struct mg_request_info* request_info) {
+                          const struct mg_request_info* request_info)
+{
     int handler_result_code = 0;
     if (event_raised == MG_NEW_REQUEST) {
         handler_result_code = reinterpret_cast<Server*>(request_info->user_data)->
@@ -48,7 +48,8 @@ void* Server::OnHttpEvent(enum mg_event event_raised,
     return reinterpret_cast<void*>(handler_result_code);
 }
 
-bool Server::Start() {
+bool Server::Start()
+{
     QString buffer = QString::number(this->port());
     const char* options[] = { "listening_ports", buffer.toStdString().c_str(),
                               "access_control_list", "-0.0.0.0/0,+127.0.0.1",
@@ -63,7 +64,8 @@ bool Server::Start() {
     return true;
 }
 
-void Server::Stop() {
+void Server::Stop()
+{
     if (context_) {
         mg_stop(context_);
         context_ = NULL;
@@ -71,10 +73,11 @@ void Server::Stop() {
 }
 
 int Server::ProcessRequest(struct mg_connection* conn,
-                           const struct mg_request_info* request_info) {
+                           const struct mg_request_info* request_info)
+{
     int http_response_code = NULL;
-    std::string http_verb = request_info->request_method;
-    std::string request_body = "{}";
+    QString http_verb = request_info->request_method;
+    QString request_body = "{}";
     //if (http_verb == "POST") {
     //    request_body = this->ReadRequestBody(conn, request_info);
     //}
@@ -86,10 +89,10 @@ int Server::ProcessRequest(struct mg_connection* conn,
                          HTML_CONTENT_TYPE);
         http_response_code = 200;
     } else {
-        //std::string serialized_response = this->DispatchCommand(request_info->uri,
+        //QString serialized_response = this->DispatchCommand(request_info->uri,
         //                                                        http_verb,
         //                                                        request_body);
-        std::string serialized_response = "Make it work";
+        QString serialized_response = "Make it work";
         http_response_code = this->SendResponseToClient(conn,
                                                         request_info,
                                                         serialized_response);
@@ -99,9 +102,10 @@ int Server::ProcessRequest(struct mg_connection* conn,
 }
 
 /*
-std::string Server::ReadRequestBody(struct mg_connection* conn,
-                                    const struct mg_request_info* request_info) {
-    std::string request_body = "";
+QString Server::ReadRequestBody(struct mg_connection* conn,
+                                    const struct mg_request_info* request_info)
+{
+    QString request_body = "";
     int content_length = 0;
     for (int header_index = 0; header_index < 64; ++header_index) {
         if (request_info->http_headers[header_index].name == NULL) {
@@ -130,14 +134,16 @@ std::string Server::ReadRequestBody(struct mg_connection* conn,
     return request_body;
 }
 
-std::string Server::CreateSession() {
+QString Server::CreateSession()
+{
   SessionHandle session_handle= this->InitializeSession();
-  std::string session_id = session_handle->session_id();
+  QString session_id = session_handle->session_id();
   this->sessions_[session_id] = session_handle;
   return session_id;
 }
 
-void Server::ShutDownSession(const std::string& session_id) {
+void Server::ShutDownSession(const QString& session_id)
+{
   SessionMap::iterator it = this->sessions_.find(session_id);
   if (it != this->sessions_.end()) {
     it->second->ShutDown();
@@ -145,12 +151,13 @@ void Server::ShutDownSession(const std::string& session_id) {
   }
 }
 
-std::string Server::DispatchCommand(const std::string& uri,
-                                     const std::string& http_verb,
-                                     const std::string& command_body) {
-  std::string session_id = "";
-  std::string locator_parameters = "";
-  std::string serialized_response = "";
+QString Server::DispatchCommand(const QString& uri,
+                                     const QString& http_verb,
+                                     const QString& command_body)
+{
+  QString session_id = "";
+  QString locator_parameters = "";
+  QString serialized_response = "";
   int command = this->LookupCommand(uri,
                                     http_verb,
                                     &session_id,
@@ -190,11 +197,11 @@ std::string Server::DispatchCommand(const std::string& uri,
       serialized_response.append(" does not exist\" }");
     } else {
       // Compile the serialized JSON representation of the command by hand.
-      std::stringstream command_value_stream;
+      QStringstream command_value_stream;
       command_value_stream << command;
-      std::string command_value = command_value_stream.str();
+      QString command_value = command_value_stream.str();
 
-      std::string serialized_command = "{ \"command\" : " + command_value;
+      QString serialized_command = "{ \"command\" : " + command_value;
       serialized_command.append(", \"locator\" : ");
       serialized_command.append(locator_parameters);
       serialized_command.append(", \"parameters\" : ");
@@ -212,8 +219,8 @@ std::string Server::DispatchCommand(const std::string& uri,
 }
 
 
-bool Server::LookupSession(const std::string& session_id,
-                           SessionHandle* session_handle) {
+bool Server::LookupSession(const QString& session_id, SessionHandle* session_handle)
+{
   SessionMap::iterator it = this->sessions_.find(session_id);
   if (it == this->sessions_.end()) {
     return false;
@@ -225,7 +232,8 @@ bool Server::LookupSession(const std::string& session_id,
 
 int Server::SendResponseToClient(struct mg_connection* conn,
                                  const struct mg_request_info* request_info,
-                                 const std::string& serialized_response) {
+                                 const QString& serialized_response)
+{
   int return_code = 0;
   if (serialized_response.size() > 0) {
     Response response;
@@ -238,7 +246,7 @@ int Server::SendResponseToClient(struct mg_connection* conn,
                        JSON_CONTENT_TYPE);
       return_code = 200;
     } else if (return_code == 303) {
-      std::string location = response.value().asString();
+      QString location = QString::fromStdString(response.value().asString());
       response.SetSuccessResponse(response.value());
       this->SendHttpSeeOther(conn, request_info, location);
       return_code = 303;
@@ -249,13 +257,13 @@ int Server::SendResponseToClient(struct mg_connection* conn,
       this->SendHttpNotFound(conn, request_info, serialized_response);
       return_code = 404;
     } else if (return_code == 405) {
-      std::string parameters = response.value().asString();
+      QString parameters = QString::fromStdString(response.value().asString());
       this->SendHttpMethodNotAllowed(conn, request_info, parameters);
       return_code = 405;
     } else if (return_code == 501) {
       this->SendHttpNotImplemented(conn,
                                    request_info,
-                                   response.value().asString());
+                                   QString::fromStdString(response.value().asString()));
       return_code = 501;
     } else {
       this->SendHttpInternalError(conn, request_info, serialized_response);
@@ -271,17 +279,18 @@ int Server::SendResponseToClient(struct mg_connection* conn,
 // not covered in the JSON protocol.
 void Server::SendHttpOk(struct mg_connection* connection,
                         const struct mg_request_info* request_info,
-                        const std::string& body,
-                        const std::string& content_type) {
+                        const QString& body,
+                        const QString& content_type)
+{
     std::ostringstream out;
     out << "HTTP/1.1 200 OK\r\n"
-        << "Content-Length: " << strlen(body.c_str()) << "\r\n"
-        << "Content-Type: " << content_type << "; charset=UTF-8\r\n"
+        << "Content-Length: " << body.length() << "\r\n"
+        << "Content-Type: " << content_type.toStdString() << "; charset=UTF-8\r\n"
         << "Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept\r\n"
         << "Accept-Ranges: bytes\r\n"
         << "Connection: close\r\n\r\n";
-    if (strcmp(request_info->request_method, "HEAD") != 0) {
-        out << body << "\r\n";
+    if (qstrcmp(request_info->request_method, "HEAD") != 0) {
+        out << body.toStdString() << "\r\n";
     }
 
     mg_write(connection, out.str().c_str(), out.str().size());
@@ -289,16 +298,17 @@ void Server::SendHttpOk(struct mg_connection* connection,
 
 void Server::SendHttpBadRequest(struct mg_connection* const connection,
                                 const struct mg_request_info* request_info,
-                                const std::string& body) {
+                                const QString& body)
+{
     std::ostringstream out;
     out << "HTTP/1.1 400 Bad Request\r\n"
-        << "Content-Length: " << strlen(body.c_str()) << "\r\n"
+        << "Content-Length: " << body.length() << "\r\n"
         << "Content-Type: application/json; charset=UTF-8\r\n"
         << "Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept\r\n"
         << "Accept-Ranges: bytes\r\n"
         << "Connection: close\r\n\r\n";
-    if (strcmp(request_info->request_method, "HEAD") != 0) {
-        out << body << "\r\n";
+    if (qstrcmp(request_info->request_method, "HEAD") != 0) {
+        out << body.toStdString() << "\r\n";
     }
 
     mg_printf(connection, "%s", out.str().c_str());
@@ -306,16 +316,17 @@ void Server::SendHttpBadRequest(struct mg_connection* const connection,
 
 void Server::SendHttpInternalError(struct mg_connection* connection,
                                    const struct mg_request_info* request_info,
-                                   const std::string& body) {
+                                   const QString& body)
+{
     std::ostringstream out;
     out << "HTTP/1.1 500 Internal Server Error\r\n"
-        << "Content-Length: " << strlen(body.c_str()) << "\r\n"
+        << "Content-Length: " << body.length() << "\r\n"
         << "Content-Type: application/json; charset=UTF-8\r\n"
         << "Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept\r\n"
         << "Accept-Ranges: bytes\r\n"
         << "Connection: close\r\n\r\n";
-    if (strcmp(request_info->request_method, "HEAD") != 0) {
-        out << body << "\r\n";
+    if (qstrcmp(request_info->request_method, "HEAD") != 0) {
+        out << body.toStdString() << "\r\n";
     }
 
     mg_write(connection, out.str().c_str(), out.str().size());
@@ -323,16 +334,17 @@ void Server::SendHttpInternalError(struct mg_connection* connection,
 
 void Server::SendHttpNotFound(struct mg_connection* const connection,
                               const struct mg_request_info* request_info,
-                              const std::string& body) {
+                              const QString& body)
+{
     std::ostringstream out;
     out << "HTTP/1.1 404 Not Found\r\n"
-        << "Content-Length: " << strlen(body.c_str()) << "\r\n"
+        << "Content-Length: " << body.length() << "\r\n"
         << "Content-Type: application/json; charset=UTF-8\r\n"
         << "Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept\r\n"
         << "Accept-Ranges: bytes\r\n"
         << "Connection: close\r\n\r\n";
-    if (strcmp(request_info->request_method, "HEAD") != 0) {
-        out << body << "\r\n";
+    if (qstrcmp(request_info->request_method, "HEAD") != 0) {
+        out << body.toStdString() << "\r\n";
     }
 
     mg_printf(connection, "%s", out.str().c_str());
@@ -341,34 +353,37 @@ void Server::SendHttpNotFound(struct mg_connection* const connection,
 void Server::SendHttpMethodNotAllowed(
         struct mg_connection* connection,
         const struct mg_request_info* request_info,
-        const std::string& allowed_methods) {
+        const QString& allowed_methods)
+{
     std::ostringstream out;
     out << "HTTP/1.1 405 Method Not Allowed\r\n"
         << "Content-Type: text/html\r\n"
         << "Content-Length: 0\r\n"
-        << "Allow: " << allowed_methods << "\r\n\r\n";
+        << "Allow: " << allowed_methods.toStdString() << "\r\n\r\n";
 
     mg_write(connection, out.str().c_str(), out.str().size());
 }
 
 void Server::SendHttpNotImplemented(struct mg_connection* connection,
                                     const struct mg_request_info* request_info,
-                                    const std::string& body) {
+                                    const QString& body)
+{
     std::ostringstream out;
     out << "HTTP/1.1 501 Not Implemented\r\n"
         << "Content-Type: text/html\r\n"
         << "Content-Length: 0\r\n"
-        << "Allow: " << body << "\r\n\r\n";
+        << "Allow: " << body.toStdString() << "\r\n\r\n";
 
     mg_write(connection, out.str().c_str(), out.str().size());
 }
 
 void Server::SendHttpSeeOther(struct mg_connection* connection,
                               const struct mg_request_info* request_info,
-                              const std::string& location) {
+                              const QString& location)
+{
     std::ostringstream out;
     out << "HTTP/1.1 303 See Other\r\n"
-        << "Location: " << location << "\r\n"
+        << "Location: " << location.toStdString() << "\r\n"
         << "Content-Type: text/html\r\n"
         << "Content-Length: 0\r\n\r\n";
 
@@ -376,25 +391,26 @@ void Server::SendHttpSeeOther(struct mg_connection* connection,
 }
 
 /*
-int Server::LookupCommand(const std::string& uri,
-                          const std::string& http_verb,
-                          std::string* session_id,
-                          std::string* locator) {
+int Server::LookupCommand(const QString& uri,
+                          const QString& http_verb,
+                          QString* session_id,
+                          QString* locator)
+{
     int value = NoCommand;
     UrlMap::const_iterator it = this->commands_.begin();
     for (; it != this->commands_.end(); ++it) {
-        std::vector<std::string> locator_param_names;
-        std::string url_candidate = it->first;
+        std::vector<QString> locator_param_names;
+        QString url_candidate = it->first;
         size_t param_start_pos = url_candidate.find_first_of(":");
-        while (param_start_pos != std::string::npos) {
-            size_t param_len = std::string::npos;
+        while (param_start_pos != QString::npos) {
+            size_t param_len = QString::npos;
             size_t param_end_pos = url_candidate.find_first_of("/", param_start_pos);
-            if (param_end_pos != std::string::npos) {
+            if (param_end_pos != QString::npos) {
                 param_len = param_end_pos - param_start_pos;
             }
 
             // Skip the colon
-            std::string param_name = url_candidate.substr(param_start_pos + 1,
+            QString param_name = url_candidate.substr(param_start_pos + 1,
                                                           param_len - 1);
             locator_param_names.push_back(param_name);
             if (param_name == "sessionid" || param_name == "id") {
@@ -406,19 +422,19 @@ int Server::LookupCommand(const std::string& uri,
         }
 
         std::tr1::regex matcher("^" + url_candidate + "$");
-        std::tr1::match_results<std::string::const_iterator> matches;
+        std::tr1::match_results<QString::const_iterator> matches;
         if (std::tr1::regex_search(uri, matches, matcher)) {
             VerbMap::const_iterator verb_iterator = it->second.find(http_verb);
             if (verb_iterator != it->second.end()) {
                 value = verb_iterator->second;
-                std::string param = "{";
+                QString param = "{";
                 size_t param_count = locator_param_names.size();
                 for (unsigned int i = 0; i < param_count; i++) {
                     if (i != 0) {
                         param.append(",");
                     }
 
-                    std::string locator_param_value = matches[i + 1].str();
+                    QString locator_param_value = matches[i + 1].str();
                     param.append(" \"");
                     param.append(locator_param_names[i]);
                     param.append("\" : \"");
@@ -447,7 +463,8 @@ int Server::LookupCommand(const std::string& uri,
     return value;
 }
 
-void Server::PopulateCommandRepository() {
+void Server::PopulateCommandRepository()
+{
     this->commands_["/status"]["GET"] = Status;
     this->commands_["/session"]["POST"] = NewSession;
     this->commands_["/session/:sessionid"]["GET"] = GetSessionCapabilities;

@@ -17,7 +17,7 @@
 #ifndef WEBDRIVER_SERVER_RESPONSE_H_
 #define WEBDRIVER_SERVER_RESPONSE_H_
 
-#include <string>
+#include <QString>
 #include <json/json.h>
 
 namespace webdriver {
@@ -25,10 +25,10 @@ namespace webdriver {
 class Response {
  public:
   Response(void);
-  explicit Response(const std::string& session_id);
+  explicit Response(const QString& session_id);
   virtual ~Response(void);
-  std::string Serialize(void);
-  void Deserialize(const std::string& json);
+  QString Serialize(void);
+  void Deserialize(const QString& json);
 
   int status_code(void) const { return this->status_code_; }
 
@@ -36,13 +36,13 @@ class Response {
 
   void SetResponse(const int status_code, const Json::Value& response_value);
   void SetSuccessResponse(const Json::Value& response_value);
-  void SetErrorResponse(const int error_code, const std::string& message);
+  void SetErrorResponse(const int error_code, const QString& message);
 
  private:
   // The status code of the response, indicating success or failure.
   int status_code_;
   // The ID of the session on which the command was executed.
-  std::string session_id_;
+  QString session_id_;
   // A JSON object that represents the value of the response.
   Json::Value value_;
 };

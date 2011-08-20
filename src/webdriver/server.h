@@ -18,16 +18,13 @@
 #define WEBDRIVER_SERVER_SERVER_H_
 
 #include <QtCore/QString>
-#include <vector>
-#include <map>
-//#include <regex>
+#include <QtCore/QMap>
+#include <QtCore/QVector>
 #include <sstream>
-#include <string>
-//#include <sstream>
-#include <stdlib.h>
 //#include "command_types.h"
-#include "response.h"
+//#include <regex>
 //#include "session.h"
+#include "response.h"
 
 #include "../registry.h"
 #include "../third_party/mongoose/mongoose.h"
@@ -35,84 +32,84 @@
 namespace webdriver {
 
 class Server {
-    public:
-        explicit Server(const int port);
-        virtual ~Server(void);
+public:
+    explicit Server(const int port);
+    virtual ~Server(void);
 
-        static void* OnHttpEvent(enum mg_event event_raised,
-                                 struct mg_connection* conn,
-                                 const struct mg_request_info* request_info);
-        bool Start(void);
-        void Stop(void);
-        int ProcessRequest(struct mg_connection* conn,
-                           const struct mg_request_info* request_info);
+    static void* OnHttpEvent(enum mg_event event_raised,
+                             struct mg_connection* conn,
+                             const struct mg_request_info* request_info);
+    bool Start(void);
+    void Stop(void);
+    int ProcessRequest(struct mg_connection* conn,
+                       const struct mg_request_info* request_info);
 
-        int port(void) const { return this->port_; }
+    int port(void) const { return this->port_; }
 
-        /*int session_count(void) const {
+    /*int session_count(void) const {
             return static_cast<int>(this->sessions_.size());
         }*/
 
     //protected:
     //    virtual SessionHandle InitializeSession(void) = 0;
 
-    private:
-        typedef std::map<std::string, int> VerbMap;
-        typedef std::map<std::string, VerbMap> UrlMap;
-        /*
-        typedef std::map<std::string, SessionHandle> SessionMap;
+private:
+    typedef QMap<QString, int> VerbMap;
+    typedef QMap<QString, VerbMap> UrlMap;
+    /*
+        typedef std::map<QString, SessionHandle> SessionMap;
 
-        int LookupCommand(const std::string& uri,
-                          const std::string& http_verb,
-                          std::string* session_id,
-                          std::string* locator);
-        std::string DispatchCommand(const std::string& url,
-                                    const std::string& http_verb,
-                                    const std::string& command_body);
-        std::string CreateSession(void);
-        void ShutDownSession(const std::string& session_id);
-        bool LookupSession(const std::string& session_id,
+        int LookupCommand(const QString& uri,
+                          const QString& http_verb,
+                          QString* session_id,
+                          QString* locator);
+        QString DispatchCommand(const QString& url,
+                                    const QString& http_verb,
+                                    const QString& command_body);
+        QString CreateSession(void);
+        void ShutDownSession(const QString& session_id);
+        bool LookupSession(const QString& session_id,
                            SessionHandle* session_handle);
         */
-        std::string ReadRequestBody(struct mg_connection* conn,
-                                    const struct mg_request_info* request_info);
-        int SendResponseToClient(struct mg_connection* conn,
-                                 const struct mg_request_info* request_info,
-                                 const std::string& serialized_response);
-        void PopulateCommandRepository(void);
+    QString ReadRequestBody(struct mg_connection* conn,
+                            const struct mg_request_info* request_info);
+    int SendResponseToClient(struct mg_connection* conn,
+                             const struct mg_request_info* request_info,
+                             const QString& serialized_response);
+    void PopulateCommandRepository(void);
 
-        void SendHttpOk(mg_connection* connection,
-                        const mg_request_info* request_info,
-                        const std::string& body,
-                        const std::string& content_type);
-        void SendHttpBadRequest(mg_connection* connection,
+    void SendHttpOk(mg_connection* connection,
+                    const mg_request_info* request_info,
+                    const QString& body,
+                    const QString& content_type);
+    void SendHttpBadRequest(mg_connection* connection,
+                            const mg_request_info* request_info,
+                            const QString& body);
+    void SendHttpInternalError(mg_connection* connection,
+                               const mg_request_info* request_info,
+                               const QString& body);
+    void SendHttpMethodNotAllowed(mg_connection* connection,
+                                  const mg_request_info* request_info,
+                                  const QString& allowed_methods);
+    void SendHttpNotFound(mg_connection* connection,
+                          const mg_request_info* request_info,
+                          const QString& body);
+    void SendHttpNotImplemented(mg_connection* connection,
                                 const mg_request_info* request_info,
-                                const std::string& body);
-        void SendHttpInternalError(mg_connection* connection,
-                                   const mg_request_info* request_info,
-                                   const std::string& body);
-        void SendHttpMethodNotAllowed(mg_connection* connection,
-                                      const mg_request_info* request_info,
-                                      const std::string& allowed_methods);
-        void SendHttpNotFound(mg_connection* connection,
-                              const mg_request_info* request_info,
-                              const std::string& body);
-        void SendHttpNotImplemented(mg_connection* connection,
-                                    const mg_request_info* request_info,
-                                    const std::string& body);
-        void SendHttpSeeOther(mg_connection* connection,
-                              const mg_request_info* request_info,
-                              const std::string& location);
+                                const QString& body);
+    void SendHttpSeeOther(mg_connection* connection,
+                          const mg_request_info* request_info,
+                          const QString& location);
 
-        // The port used for communicating with this server.
-        int port_;
-        // The map of all command URIs (URL and HTTP verb), and
-        // the corresponding numerical value of the command.
-        UrlMap commands_;
-        // The map of all sessions currently active in this server.
-        //SessionMap sessions_;
-        // The Mongoose context for this server.
-        struct mg_context* context_;
+    // The port used for communicating with this server.
+    int port_;
+    // The map of all command URIs (URL and HTTP verb), and
+    // the corresponding numerical value of the command.
+    UrlMap commands_;
+    // The map of all sessions currently active in this server.
+    //SessionMap sessions_;
+    // The Mongoose context for this server.
+    struct mg_context* context_;
 };
 
 }  // namespace WebDriver
