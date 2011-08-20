@@ -18,7 +18,7 @@
 #define WEBDRIVER_SERVER_RESPONSE_H_
 
 #include <string>
-#include "../third_party/json/json.h"
+#include <json/json.h>
 
 namespace webdriver {
 
